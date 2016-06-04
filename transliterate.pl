@@ -19,30 +19,23 @@ GetOptions(\%options,
             'manual|m',
             'verbose|v');
 
-if($options {'de'})
+while( my $line = <>)
 {
-    while( my $line = <>)
+    print "\e[37m" . $line . "\e[0m";
+    if($options {'de'})
     {
-        print "\e[37m" . $line . "\e[0m";
         $line = transliterate_russ_de($line );
-        $line = transliterate_ancientgreek($line );
-        $line = transliterate_bangla($line );
-        print $line;
-        print "\n";
     }
-}
-else
-{
-    while( my $line = <>)
+    else
     {
-        print "\e[37m" . $line . "\e[0m";
         $line = transliterate_russ_en($line );
-        $line = transliterate_ancientgreek($line );
-        $line = transliterate_bangla($line );
-        print $line;
-        print "\n";
     }
+    $line = transliterate_ancientgreek($line );
+    $line = transliterate_bangla($line );
+    print $line;
+    print "\n";
 }
+
 
 print "\n";
 
