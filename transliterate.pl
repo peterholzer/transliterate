@@ -14,38 +14,35 @@ GetOptions(\%options,
             'output|o=s',
             'en|e',
             'de|d',
-            'sci|s',
-            'bangla|b',
-            'greek|g',
+          # 'sci|s',
             'help|h',
             'manual|m',
             'verbose|v');
 
-if($options {'greek'})
+if($options {'de'})
 {
-    transliterate_ancientgreek();
-}
-elsif($options {'en'})
-{
-    transliterate_russ_en();
-}
-elsif($options {'sci'})
-{
-    transliterate_russ_sci();
-}
-elsif($options {'de'})
-{
-    transliterate_russ_de();
-}
-elsif($options {'bangla'})
-{
-    transliterate_bangla();
+    while( my $line = <>)
+    {
+        print "\e[37m" . $line . "\e[0m";
+        $line = transliterate_russ_de($line );
+        $line = transliterate_ancientgreek($line );
+        $line = transliterate_bangla($line );
+        print $line;
+        print "\n";
+    }
 }
 else
 {
-    transliterate_russ_de();
+    while( my $line = <>)
+    {
+        print "\e[37m" . $line . "\e[0m";
+        $line = transliterate_russ_en($line );
+        $line = transliterate_ancientgreek($line );
+        $line = transliterate_bangla($line );
+        print $line;
+        print "\n";
+    }
 }
-
 
 print "\n";
 
@@ -55,28 +52,39 @@ exit 0;
 
 sub transliterate_ancientgreek
 {
+    my $line = $_[0];
+
     my %characters = (
         'Α' => "A",     'α' => "a",                       # alpha
         'Β' => "B",     'β' => "b",                       # beta
+                        'ϐ' => "b",
         'Γ' => "G",     'γ' => "g",                       # gamma
         'Δ' => "D",     'δ' => "d",                       # delta
         'Ε' => "E",     'ε' => "e",                       # epsilon
+                        'ϵ' => "e",
         'Ζ' => "Z",     'ζ' => "z",                       # zeta
         'Η' => "ē",     'η' => "ē",                       # eta
         'Θ' => "Th",    'θ' => "th",                      # theta
+                        'ϑ' => "th",
         'Ι' => "I",     'ι' => "i",                       # iota
         'Κ' => "K",     'κ' => "k",                       # kappa
+                        'ϰ' => "k",
         'Λ' => "L",     'λ' => "l",                       # lambda
         'Μ' => "M",     'μ' => "m",                       # mu
         'Ν' => "N",     'ν' => "n",                       # nu
         'Ξ' => "X",     'ξ' => "x",                       # xi
         'Ο' => "O",     'ο' => "o",                       # omicron
         'Π' => "P",     'π' => "p",                       # pi
+                        'ϖ' => "p",
         'Ρ' => "R",     'ρ' => "r",  # (h)                # rho
+                        'ϱ' => "r",
         'Σ' => "S",     'σ' => "s",                       # sigma
+                        'ς' => "s",
+                        'ϲ' => "s",
         'Τ' => "T",     'τ' => "t",                       # tau
         'Υ' => "Y",     'υ' => "y", # bei αυ, ευ, ου: u   # upsilon
         'Φ' => "Ph",    'φ' => "ph",                      # phi
+                        'ϕ' => "ph",
         'Χ' => "Ch",    'χ' => "ch",                      # chi
         'Ψ' => "Ps",    'ψ' => "ps",                      # psi
         'Ω' => "ō",     'ω' => "ō",                       # omega
@@ -90,27 +98,33 @@ sub transliterate_ancientgreek
         'Ϟ' => "Q", 'ϟ' => "q",   # Koppa
         'Ͳ' => "Ss", 'ͳ' => "ss", # Sampi
         'Ϡ' => "Ss", 'ϡ' => "ss", # Sampi
+
+
+        '῾' => "", # Spiritus asper
+        '᾽' => "", # Spiritus lenis
+
+        '´' => "", # Akut,        Oxeia,       für den Hochton
+        '`' => "", # Gravis,     Bareia,       für den Tiefton,
+        '῀' => "", # Zirkumflex, Perispomenē,  für den Steig- und Fallton
+
+        '¨' => "", # Trema
     );
 
     my $find_characters    =  join "|", keys %characters;
 
-    while( my $line = <>)
-    {
-        print $line;
+    $line =~ s/ь([ΑαΕεΟο])Υ/$characters{$1}U/g;
+    $line =~ s/ь([ΑαΕεΟο])υ/$characters{$1}u/g;
 
-        $line =~ s/ь([ΑαΕεΟο])Υ/$characters{$1}U/g;
-        $line =~ s/ь([ΑαΕεΟο])υ/$characters{$1}u/g;
+    $line =~ s/($find_characters)/$characters{$1}/g;
 
-        $line =~ s/($find_characters)/$characters{$1}/g;
-
-        print $line;
-        print "\n";
-    }
+    return $line;
 }
 
 
 sub transliterate_russ_de
 {
+    my $line = $_[0];
+
     my %vowels = (
         'А' => "A",       'а' => "a",
         'О' => "O",       'о' => "o",
@@ -157,69 +171,66 @@ sub transliterate_russ_de
     my $find_consonants         = join("|", keys %consonants);
     my $find_special_characters = join("|", keys %special_characters);
 
-    while( my $line = <>)
-    {
-        print "\e[37m" . $line . "\e[0m";
 
-    # Die Nummern beziehen sich auf die Anmerkungen hier: https://de.wikipedia.org/wiki/Kyrillisches_Alphabet#Russisch
+# Die Nummern beziehen sich auf die Anmerkungen hier: https://de.wikipedia.org/wiki/Kyrillisches_Alphabet#Russisch
 
-    # 7) Ь ь -> J j         (ьи,ье,ьо -> ji,je,jo_
-        # Die Verbindungen ьи, ье und ьо werden als ji, je beziehungsweise jo transkribiert.
-        $line =~ s/Ь([ИиЕеОо])/J$vowels{$1}/g;
-        $line =~ s/ь([ИиЕеОо])/j$vowels{$1}/g;
+# 7) Ь ь -> J j         (ьи,ье,ьо -> ji,je,jo_
+    # Die Verbindungen ьи, ье und ьо werden als ji, je beziehungsweise jo transkribiert.
+    $line =~ s/Ь([ИиЕеОо])/J$vowels{$1}/g;
+    $line =~ s/ь([ИиЕеОо])/j$vowels{$1}/g;
 
-    # 1) Е е -> Je je
-        # Nach russischen Vokalen, am Wortanfang und nach ь sowie ъ wird mit je beziehungsweise Je transkribiert,
-        $line =~ s/($find_vowels)е/$1je/g;
-        $line =~ s/($find_vowels)Е/$1JE/g;
-        $line =~ s/\bЕ/Je/g;
-        $line =~ s/\bе/je/g;
-        $line =~ s/([ЪъЬь])е/$1je/g;
+# 1) Е е -> Je je
+    # Nach russischen Vokalen, am Wortanfang und nach ь sowie ъ wird mit je beziehungsweise Je transkribiert,
+    $line =~ s/($find_vowels)е/$1je/g;
+    $line =~ s/($find_vowels)Е/$1JE/g;
+    $line =~ s/\bЕ/Je/g;
+    $line =~ s/\bе/je/g;
+    $line =~ s/([ЪъЬь])е/$1je/g;
 
-    # 2) Ё ё -> O o
-        # Ё ё wird nach ж (sch), ч (tsch), ш (sch), und щ (schtsch) mit o transkribiert.
-        $line =~ s/([ЖжЧчШшЩщ])ё/$1o/g;
-        $line =~ s/([ЖжЧчШшЩщ])Ё/$1O/g;
+# 2) Ё ё -> O o
+    # Ё ё wird nach ж (sch), ч (tsch), ш (sch), und щ (schtsch) mit o transkribiert.
+    $line =~ s/([ЖжЧчШшЩщ])ё/$1o/g;
+    $line =~ s/([ЖжЧчШшЩщ])Ё/$1O/g;
 
-    # 4) Й й
-        # Duden: „й = i am Wortende sowie zwischen russischem Vokalbuchstaben und russischem Konsonantenbuchstaben“
+# 4) Й й
+    # Duden: „й = i am Wortende sowie zwischen russischem Vokalbuchstaben und russischem Konsonantenbuchstaben“
 
-        # Mit j wird й vor Vokal umschriftet
-        # Й й -> J j vor Vokal
-        $line =~ s/Й($find_vowels)/J$1/g;
-        $line =~ s/й($find_vowels)/j$1/g;
+    # Mit j wird й vor Vokal umschriftet
+    # Й й -> J j vor Vokal
+    $line =~ s/Й($find_vowels)/J$1/g;
+    $line =~ s/й($find_vowels)/j$1/g;
 
-        # й wird nach и und ы vor Konsonant mit j umschriftet.
-        $line =~ s/([ИиЫы])й($find_consonants)/$1j$2/g;
+    # й wird nach и und ы vor Konsonant mit j umschriftet.
+    $line =~ s/([ИиЫы])й($find_consonants)/$1j$2/g;
 
-        # й Duden: „й wird nach и und nach ы nicht wiedergegeben“
-        $line =~ s/([ИиЫы])й/$1/g;
+    # й Duden: „й wird nach и und nach ы nicht wiedergegeben“
+    $line =~ s/([ИиЫы])й/$1/g;
 
-    # 8) Г г -> w TODO TODO TODO
-        # In der Genitivendung der Adjektive -ого/-его jedoch w: -owo/-(j)ewo.
-        $line =~ s/\B([ео])го\b/$1wo/g;
+# 8) Г г -> w TODO TODO TODO
+    # In der Genitivendung der Adjektive -ого/-его jedoch w: -owo/-(j)ewo.
+    $line =~ s/\B([ео])го\b/$1wo/g;
 
-    # 10) С с -> ss
-        # Zwischen Vokalen zur Kennzeichnung der stimmlosen Aussprache gewöhnlich ss.
-        $line =~ s/($find_vowels)с($find_vowels)/$1ss$2/g;
-        $line =~ s/($find_vowels)С($find_vowels)/$1SS$2/g;
+# 10) С с -> ss
+    # Zwischen Vokalen zur Kennzeichnung der stimmlosen Aussprache gewöhnlich ss.
+    $line =~ s/($find_vowels)с($find_vowels)/$1ss$2/g;
+    $line =~ s/($find_vowels)С($find_vowels)/$1SS$2/g;
 
 
 
-        # $line =~ s/($find_de)/$replace_de{$1}/g;
-        $line =~ s/($find_vowels)/$vowels{$1}/g;
-        $line =~ s/($find_consonants)/$consonants{$1}/g;
-        $line =~ s/($find_special_characters)/$special_characters{$1}/g;
+    # $line =~ s/($find_de)/$replace_de{$1}/g;
+    $line =~ s/($find_vowels)/$vowels{$1}/g;
+    $line =~ s/($find_consonants)/$consonants{$1}/g;
+    $line =~ s/($find_special_characters)/$special_characters{$1}/g;
 
-        print $line;
-        print "\n";
-    }
+    return $line;
 }
 
 
 sub transliterate_russ_en
 {
-    my %replace_en = (
+    my $line = $_[0];
+
+    my %characters = (
         'А' => "A",       'а' => "a",
         'Е' => "E",       'е' => "e",   # (ye) 1)
         'Ё' => "Jo",      'ё' => "jo",  # (yo) 2)
@@ -256,43 +267,39 @@ sub transliterate_russ_en
         'Ъ' => "-",       'ъ' => "-",
         'Ь' => "'",       'ь' => "'",    # (y)  7)
     );
-    my $find_en    =  join "|", keys %replace_en;
+    my $find_characters    =  join "|", keys %characters;
 
-    while( my $line = <>)
-    {
-        print $line;
+# 7) Ь ь -> Y y         (ьи,ье,ьо -> yi,ye,yo)
+    $line =~ s/Ьи/Yi/g;
+    $line =~ s/ьи/yi/g;
+    $line =~ s/Ье/Ye/g;
+    $line =~ s/ье/ye/g;
+    $line =~ s/Ьо/Yo/g;
+    $line =~ s/ьо/yo/g;
 
-    # 7) Ь ь -> Y y         (ьи,ье,ьо -> yi,ye,yo)
-        $line =~ s/Ьи/Yi/g;
-        $line =~ s/ьи/yi/g;
-        $line =~ s/Ье/Ye/g;
-        $line =~ s/ье/ye/g;
-        $line =~ s/Ьо/Yo/g;
-        $line =~ s/ьо/yo/g;
+# 1) Е е -> Je je
+    $line =~ s/([АаЕеЁёИиОоУуЫыЭэЮюЯя])е/$1ye/g;
+    $line =~ s/([АаЕеЁёИиОоУуЫыЭэЮюЯя])Е/$1YE/g;
+    $line =~ s/\bЕ/Ye/g;
+    $line =~ s/\bе/ye/g;
+    $line =~ s/([ЪъЬь])е/$1ye/g;
 
-    # 1) Е е -> Je je
-        $line =~ s/([АаЕеЁёИиОоУуЫыЭэЮюЯя])е/$1ye/g;
-        $line =~ s/([АаЕеЁёИиОоУуЫыЭэЮюЯя])Е/$1YE/g;
-        $line =~ s/\bЕ/Ye/g;
-        $line =~ s/\bе/ye/g;
-        $line =~ s/([ЪъЬь])е/$1ye/g;
-
-    # 2) Ё ё -> O o
-        $line =~ s/([ЖжЧчШшЩщ])ё/$1yo/g;
-        $line =~ s/([ЖжЧчШшЩщ])Ё/$1YO/g;
+# 2) Ё ё -> O o
+    $line =~ s/([ЖжЧчШшЩщ])ё/$1yo/g;
+    $line =~ s/([ЖжЧчШшЩщ])Ё/$1YO/g;
 
 
 
-        $line =~ s/($find_en)/$replace_en{$1}/g;
+    $line =~ s/($find_characters)/$characters{$1}/g;
 
-        print $line;
-        print "\n";
-    }
+    return $line;
 }
 
 # TODO: Letter য়ে
 sub transliterate_bangla
 {
+    my $line = $_[0];
+
     my %vowels = (
         'অ' => "a",
         'আ' => "ā",
@@ -381,18 +388,11 @@ sub transliterate_bangla
     my $find_vowels               = join("|", keys %vowels);
     my $find_special_characters   = join("|", keys %special_characters);
 
+    $line =~ s/($find_special_combinations)/$special_combinations{$1}a/g;
+    $line =~ s/($find_consonants)($find_combining_vowels)/$consonants{$1}$combining_vowels{$2}/g;
+    $line =~ s/($find_consonants)/$consonants{$1}a/g;
+    $line =~ s/($find_vowels)/$vowels{$1}/g;
+    $line =~ s/($find_special_characters)/$special_characters{$1}/g;
 
-    while( my $line = <>)
-    {
-        print $line;
-
-        $line =~ s/($find_special_combinations)/$special_combinations{$1}a/g;
-        $line =~ s/($find_consonants)($find_combining_vowels)/$consonants{$1}$combining_vowels{$2}/g;
-        $line =~ s/($find_consonants)/$consonants{$1}a/g;
-        $line =~ s/($find_vowels)/$vowels{$1}/g;
-        $line =~ s/($find_special_characters)/$special_characters{$1}/g;
-
-        print $line;
-        print "\n";
-    }
+    return $line;
 }
