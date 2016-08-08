@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# Ⓐ☭
+
 use strict;
 use warnings;
 use Getopt::Long;
@@ -30,7 +30,6 @@ while( my $line = <>)
     {
         $line = transliterate_russ_en($line );
     }
-    $line = transliterate_ancientgreek($line );
     $line = transliterate_bangla($line );
     print $line;
     print "\n";
@@ -42,90 +41,6 @@ print "\n";
 exit 0;
 
 
-
-sub transliterate_ancientgreek
-{
-    my $line = $_[0];
-
-    my %characters = (
-
-        'Α' => "A",     'α' => "a",                       # alpha
-        'Ά' => "A",     'ά' => "a",                       # alpha with tonos
-        # ἀ
-        'Β' => "B",     'β' => "b",                       # beta
-                        'ϐ' => "b",
-        'Γ' => "G",     'γ' => "g",                       # gamma
-        'Δ' => "D",     'δ' => "d",                       # delta
-        'Ε' => "E",     'ε' => "e",                       # epsilon
-                        'ϵ' => "e",
-        'Έ' => "E",     'έ' => "e",                       # epsilon with tonos
-        'Ζ' => "Z",     'ζ' => "z",                       # zeta
-        'Η' => "ē",     'η' => "ē",                       # eta
-        'Ή' => "ē",     'ή' => "ē",                       # eta with tonos
-        'Θ' => "Th",    'θ' => "th",                      # theta
-                        'ϑ' => "th",
-        'Ι' => "I",     'ι' => "i",                       # iota
-        'Ί' => "I",     'ί' => "i",                       # iota with tonos
-        'Ϊ' => "I",     'ϊ' => "i",                       # iota with dialytika
-                        'ΐ' => "i",                       # iota with dialytika and tonos
-        'Κ' => "K",     'κ' => "k",                       # kappa
-                        'ϰ' => "k",
-        'Λ' => "L",     'λ' => "l",                       # lambda
-        'Μ' => "M",     'μ' => "m",                       # mu
-        'Ν' => "N",     'ν' => "n",                       # nu
-        'Ξ' => "X",     'ξ' => "x",                       # xi
-        'Ο' => "O",     'ο' => "o",                       # omicron
-        'Ό' => "O",     'ό' => "o",                       # omicron with tonos
-        'Π' => "P",     'π' => "p",                       # pi
-                        'ϖ' => "p",
-        'Ρ' => "R",     'ρ' => "r",  # (h)                # rho
-                        'ϱ' => "r",
-        'Σ' => "S",     'σ' => "s",                       # sigma
-                        'ϲ' => "s",
-                        'ς' => "s",                       # final sigma
-        'Τ' => "T",     'τ' => "t",                       # tau
-        'Υ' => "Y",     'υ' => "y", # bei αυ, ευ, ου: u   # upsilon
-        'Ύ' => "Y",     'ύ' => "y",                       # upsilon with tonos
-        'Ϋ' => "Y",     'ϋ' => "y",                       # upsilon with dialytika
-                        'ΰ' => "y",                       # upsilon with dialytika and tonos
-        'Φ' => "Ph",    'φ' => "ph",                      # phi
-                        'ϕ' => "ph",
-        'Χ' => "Ch",    'χ' => "ch",                      # chi
-        'Ψ' => "Ps",    'ψ' => "ps",                      # psi
-        'Ω' => "ō",     'ω' => "ō",                       # omega
-        'Ώ' => "ō",     'ώ' => "ō",                       # omega with tonos
-
-
-        'Ϝ' => "W", 'ϝ' => "w",   # Digamma (Wau)
-        'Ͷ' => "W", 'ͷ' => "w",   # Digamma (Wau)
-        'Ϛ' => "",  'ϛ' => "",    # Stigma
-        'Ͱ' => "H", 'ͱ' => "h",   # Heta
-        'Ϻ' => "S", 'ϻ' => "s",   # San
-        'Ϙ' => "Q", 'ϙ' => "q",   # Koppa
-        'Ϟ' => "Q", 'ϟ' => "q",   # Koppa
-        'Ͳ' => "Ss", 'ͳ' => "ss", # Sampi
-        'Ϡ' => "Ss", 'ϡ' => "ss", # Sampi
-
-
-        '῾' => "", # Spiritus asper
-        '᾽' => "", # Spiritus lenis
-
-        '´' => "", # Akut,        Oxeia,       für den Hochton
-        '`' => "", # Gravis,     Bareia,       für den Tiefton,
-        '῀' => "", # Zirkumflex, Perispomenē,  für den Steig- und Fallton
-
-        '¨' => "", # Trema
-    );
-
-    my $find_characters    =  join "|", keys %characters;
-
-    $line =~ s/ь([ΑαΕεΟο])Υ/$characters{$1}U/g;
-    $line =~ s/ь([ΑαΕεΟο])υ/$characters{$1}u/g;
-
-    $line =~ s/($find_characters)/$characters{$1}/g;
-
-    return $line;
-}
 
 
 sub transliterate_russ_de
